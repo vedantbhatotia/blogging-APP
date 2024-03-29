@@ -61,7 +61,8 @@ const authMiddleware = async (c:any, next:Next) => {
     const existing_user = await prisma.user.findUnique({
       where:{
         email:body.email,
-        name:body.name
+        name:body.name,
+        password:body.password
       }
     })
     if(existing_user){

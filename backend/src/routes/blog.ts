@@ -13,7 +13,7 @@ export const BlogRouter = new Hono<{
 const secret = "magic"
 const authMiddleware = async (c: any,next:Next) => {
     try {
-        const token: string = c.req.header("Authorization").split(" ")[1];
+        const token: string = c.req.header("Authorization");
         if (token !== null || token !== undefined) {
           const decode = await verify(token, secret);
           if (decode) {
@@ -53,11 +53,12 @@ BlogRouter.put('/',authMiddleware, async (c) => {
 	const prisma = new PrismaClient({
 		datasourceUrl: c.env?.DATABASE_URL	,
 	}).$extends(withAccelerate());
-
 	const body = await c.req.json();
-	prisma.post.update({
+	console.log(body);
+	console.log(userId);
+	const blog = await prisma.post.update({
 		where: {
-			id: body.id,
+			id: Number(body.id),
 			authorId: userId
 		},
 		data: {
@@ -65,7 +66,7 @@ BlogRouter.put('/',authMiddleware, async (c) => {
 			content: body.content
 		}
 	});
-
+	// console.log(blog);
 	return c.text('updated post');
 });
 BlogRouter.get('/bulk',async (c)=>{
