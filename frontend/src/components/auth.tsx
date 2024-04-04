@@ -1,15 +1,21 @@
 import { ChangeEvent, useState } from "react";
 import axios from "axios";
 import { Link, Navigate, useNavigate } from "react-router-dom";
-const backend_url = "https://backend.vedantbhatotia.workers.dev"
+import "../App.css";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+const backend_url = "https://backend.vedantbhatotia.workers.dev";
+
 interface AuthProps {
     type: string;
 }
+
 function Auth({ type }: AuthProps) {
     const navigate = useNavigate();
     const [email, setEmail] = useState<string>("");
     const [name, setName] = useState<string>("");
     const [password, setPassword] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(false);
 
     const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
         setName(e.target.value);
@@ -22,23 +28,50 @@ function Auth({ type }: AuthProps) {
     const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
         setPassword(e.target.value);
     };
-    async function SendRequest(){
-        try{
-            const response = await axios.post(`${backend_url}/api/v1/user/${type === "signup"?"signup" : "signin"}`,{
-                    name:name,
-                    email:email,
-                    password:password
+
+    async function SendRequest() {
+        try {
+            setLoading(true);
+            const response = await axios.post(`${backend_url}/api/v1/user/${type === "signup" ? "signup" : "signin"}`, {
+                name: name,
+                email: email,
+                password: password
             });
-            const jwt = response.data
-            localStorage.setItem("token",jwt)
-            navigate('/blogs');
-        }
-        catch(err){
+            console.log(response);
+            const jwt = response.data;
+            if(jwt == "user not found sign up "){
+                toast.error('USER NOT FOUND', {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "dark",
+                    // transition: Bounce,
+                    });
+                navigate("/signin")
+                // console.log(response);
+            }else{
+                localStorage.setItem("token", jwt);
+                navigate('/blogs');
+            }
+        } catch (err) {
             console.log("error making the request");
+        } finally {
+            setLoading(false);
         }
     }
+
     return (
-        <div className="h-screen flex justify-center flex-col">
+        <>
+        <div className="h-screen flex justify-center items-center relative">
+            {loading && (
+                <div className="loader-container absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                    <div className="loader"></div>
+                </div>
+            )}
             <div className="flex justify-center">
                 <div>
                     <div className="px-10">
@@ -53,14 +86,30 @@ function Auth({ type }: AuthProps) {
                         </div>
                     </div>
                     <div className="pt-8">
-                        <LabelledInput label="Name" type = "text" placeholder="Vedant Bhatotia..." onChange={handleNameChange} />
-                        <LabelledInput label="Email"  type = "text"placeholder="vedant@gmail.com" onChange={handleEmailChange} />
+                        <LabelledInput label="Name" type="text" placeholder="Vedant Bhatotia..." onChange={handleNameChange} />
+                        <LabelledInput label="Email" type="text" placeholder="vedant@gmail.com" onChange={handleEmailChange} />
                         <LabelledInput label="Password" type="password" placeholder="123456" onChange={handlePasswordChange} />
                         <button onClick={SendRequest} type="button" className="mt-8 w-full text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700">{type === "signup" ? "Sign up" : "Sign in"}</button>
                     </div>
                 </div>
             </div>
         </div>
+        {/* <ToastContainer />
+         */}
+          <ToastContainer
+                position="top-right"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="dark"
+                // transition: Bounce,
+            />
+        </>
     );
 }
 
