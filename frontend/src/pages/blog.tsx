@@ -3,7 +3,7 @@ import { BlogCard } from '../components/BlogCard';
 import Header from '../components/header';
 import Footer from '../components/Footer';
 import useBlogs from '../hooks';
-
+import { Link } from 'react-router-dom';
 const LandingPage: React.FC = () => {
   const blogs = useBlogs();
   return (
@@ -17,7 +17,7 @@ const LandingPage: React.FC = () => {
           <h1 className="text-5xl font-semibold">Your place to write.</h1>
           <p className="mt-4 text-xl">Start writing, whatever comes to your mind.</p>
           <div className="mt-8">
-            <a href="#" className="py-3 px-6 bg-white text-gray-800 font-semibold rounded hover:bg-gray-200 transition duration-300">Get started</a>
+            <Link to="/publish" className="py-3 px-6 bg-white text-gray-800 font-semibold rounded hover:bg-gray-200 transition duration-300">Get started</Link>
           </div>
         </div>
       </div>
